@@ -1,7 +1,7 @@
-function Square(x, y, argValue = 1) {
+function Square(x, y, id = 1) {
   this.x = x;
   this.y = y;
-  this.value = argValue;
+  this.id = id;
   this.color = color(255, 0, 0);
   // set the value on each side of the square with a random number between 0 and 4, including 0 and 4.
   this.connectors = [floor(random(0, 5)), floor(random(0, 5)), floor(random(0, 5)), floor(random(0, 5))];
@@ -149,6 +149,7 @@ function Square(x, y, argValue = 1) {
     let x1 = this.x, x2 = this.x + gridCellSize;
     let y1 = this.y, y2 = this.y + gridCellSize;
     if (mouseX > x1 && mouseX < x2 && mouseY > y1 && mouseY < y2) {
+      doDebug ? console.log({status: "square clicked", codeLocation: "Square.click()",  mouseX, mouseY, "Square ID": this.id}) : undefined;
       //alert("clicked on square " + this.value);
       // doDebug ? console.debug(this) : undefined;
       if (this.holding == false) {
@@ -160,9 +161,10 @@ function Square(x, y, argValue = 1) {
     let x1 = this.x, x2 = this.x + gridCellSize;
     let y1 = this.y, y2 = this.y + gridCellSize;
     if (x > x1 && x < x2 && y > y1 && y < y2) {
+      doDebug ? console.log("%cThe square occupies the space at ", "color: salmon", x, y) : undefined;
       return true;
     } else {
-      return false; // fix this.
+      return false; // fix
     }
   }
   this.hold = function() {
@@ -178,7 +180,12 @@ function Square(x, y, argValue = 1) {
 
   this.release = function(x, y) {
     // snap position to grid
-    console.warn(checkBoardForSquare(x, y));
+    let squareAtReleasePos = checkBoardForSquare(x, y);
+    if (squareAtReleasePos != undefined && squareAtReleasePos.id == this.id)
+      doDebug ? console.log("%cthe square at " + x + ", " + y + " is the same as the square being released", "color: green") : undefined;
+    else
+      doDebug ? console.log("%c%b", "color: orange", checkBoardForSquare(x, y)) : undefined;
+
     if (checkBoardForSquare(x, y) == undefined) {
       doDebug ? console.debug({status: "releasing square", Position: {x: this.x, y: this.y}, gridCellSize: gridCellSize}) : undefined;
       this.x = floor((this.x + (gridCellSize / 2)) / gridCellSize) * gridCellSize;
