@@ -23,13 +23,12 @@ This is a web clone of the game "Connect Me - Logic Puzzle" by Viktor Bohush.
 + clicking a square will also select that square. (this will be used for the editor)
 + the state of square editing will be controlled by a variable. *editingSquare" (this will be used for the editor)
 + in mousePressed function
-+ if (isEditing) {
-+ get square to be clicked
-+ '1' will add a connector to the top of the square. if there is already 4 connectors, then all top connectors will be removed.
-+ 'r' will rotate the square.
-+ '2' will add a connector to the right of the square. if there is already 4 connectors, then all right connectors will be removed.
-+ '3' will add a connector to the bottom of the square. if there is already 4 connectors, then all bottom connectors will be removed.
-+ '4' will add a connector to the left of the square. if there is already 4 connectors, then all left connectors will be removed.
-+ }
-+ 
+`if (isEditing) {
+    get square to be clicked
+    '1' will add a connector to the top of the square. if there is already 4 connectors, then all top connectors will be removed.
+    'r' will rotate the square.
+    '2' will add a connector to the right of the square. if there is already 4 connectors, then all right connectors will be removed.
+    '3' will add a connector to the bottom of the square. if there is already 4 connectors, then all bottom connectors will be removed.
+    '4' will add a connector to the left of the square. if there is already 4 connectors, then all left connectors will be removed.
+}`
 + if we are in "add square" mode, then we will add a square to the board when clicking, instead of editing. if a square already exists, then we should not add a square.
