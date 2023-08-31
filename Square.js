@@ -1,3 +1,10 @@
+/**
+ * @function Square
+ * @description A square that can be rotated and moved around the board.
+ * @param {number} x The x position of the square
+ * @param {number} y The y position of the square
+ * @param {number} id The id of the square
+ */
 function Square(x, y, id = 1) {
   this.x = x;
   this.y = y;
@@ -8,6 +15,13 @@ function Square(x, y, id = 1) {
   this.holding = false;
   this.lastSuccessfulPosX = x;
   this.lastSuccessfulPosY = y;
+
+  /**
+   * @public
+   * @function
+   * @name draw
+   * @description draws the square on the screen
+   */
   this.draw = function() {
     fill(this.color);
     // draw the square with 5 pixel padding
@@ -130,6 +144,12 @@ function Square(x, y, id = 1) {
     }
   }
 
+  /**
+   * @public
+   * @function
+   * @name rotateSquare
+   * @description rotates the square 90 degrees clockwise
+   */
   this.rotateSquare = function() {
     // shift all connectors to the right, and move the last connector to the first position.
     var lastConnector = this.connectors[this.connectors.length - 1];
@@ -140,11 +160,24 @@ function Square(x, y, id = 1) {
 
   }
   
+  /**
+   * @public
+   * @function
+   * @name move
+   * @param {number} posX the x position of the mouse
+   * @param {number} posY the y position of the mouse
+   */
   this.move = function(posX, posY) {
     this.x = posX - gridCellSize / 2;
     this.y = posY - gridCellSize / 2;
   }
 
+  /**
+   * @public
+   * @function
+   * @name click
+   * @description rotates the square 90 degrees clockwise
+   */
   this.click = function() {
     let x1 = this.x, x2 = this.x + gridCellSize;
     let y1 = this.y, y2 = this.y + gridCellSize;
@@ -157,6 +190,15 @@ function Square(x, y, id = 1) {
       }
     } 
   }
+
+  /**
+   * @public
+   * @function
+   * @name check
+   * @param {number} x the x position of the mouse
+   * @param {number} y the y position of the mouse
+   * @returns {boolean} true if the mouse is over the square
+   */
   this.check = function(x, y) {
     let x1 = this.x, x2 = this.x + gridCellSize;
     let y1 = this.y, y2 = this.y + gridCellSize;
@@ -167,6 +209,13 @@ function Square(x, y, id = 1) {
       return false; // fix
     }
   }
+
+  /**
+   * @public
+   * @function
+   * @name hold
+   * @returns {Square|undefined} the square that is being held, or undefined if the mouse is not over this square.
+   */
   this.hold = function() {
     let x1 = this.x, x2 = this.x + gridCellSize;
     let y1 = this.y, y2 = this.y + gridCellSize;
@@ -178,15 +227,23 @@ function Square(x, y, id = 1) {
     }
   }
 
+  /**
+   * @public
+   * @function
+   * @name release
+   * @param {number} x the x position of the mouse
+   * @param {number} y the y position of the mouse
+   * @returns 
+   */
   this.release = function(x, y) {
     // snap position to grid
     let squareAtReleasePos = checkBoardForSquare(x, y);
     if (squareAtReleasePos != undefined && squareAtReleasePos.id == this.id)
-      doDebug ? console.log("%cthe square at " + x + ", " + y + " is the same as the square being released", "color: green") : undefined;
+      doDebug ? console.log("%cthe square at " + x + ", " + y + " is the same as the square being released", "color: green; background-color: cobalt") : undefined;
     else
       doDebug ? console.log("%c%b", "color: orange", checkBoardForSquare(x, y)) : undefined;
 
-    if (checkBoardForSquare(x, y) == undefined) {
+    if (squareAtReleasePos == undefined) {
       doDebug ? console.debug({status: "releasing square", Position: {x: this.x, y: this.y}, gridCellSize: gridCellSize}) : undefined;
       this.x = floor((this.x + (gridCellSize / 2)) / gridCellSize) * gridCellSize;
       this.y = floor((this.y + (gridCellSize / 2)) / gridCellSize) * gridCellSize;
@@ -195,11 +252,90 @@ function Square(x, y, id = 1) {
       this.lastSuccessfulPosX = this.x;
       this.lastSuccessfulPosY = this.y;
       // return undefined;
+    }
+    else if (squareAtReleasePos.id == this.id) {
+      doDebug ? console.debug({status: "releasing square", Position: {x: this.x, y: this.y}, gridCellSize: gridCellSize}) : undefined;
+      this.x = floor((this.x + (gridCellSize / 2)) / gridCellSize) * gridCellSize;
+      this.y = floor((this.y + (gridCellSize / 2)) / gridCellSize) * gridCellSize;
+      doDebug ? console.log({status: "square released", Position: {x: this.x, y: this.y}, gridCellSize: gridCellSize}) : undefined;
+      this.holding = false;
+      this.lastSuccessfulPosX = this.x;
+      this.lastSuccessfulPosY = this.y;
+      // return undefined;
+
     } else {
       this.x = this.lastSuccessfulPosX;
       this.y = this.lastSuccessfulPosY;
       this.holding = false;
     }
     return undefined;
+  }
+
+  /** 
+   * @public
+   * @function
+   * @name select
+   * @description returns true if the mouse is over it
+   * @returns {boolean} true if the mouse is over it
+   */
+  this.select = function() {
+    let x1 = this.x, x2 = this.x + gridCellSize;
+    let y1 = this.y, y2 = this.y + gridCellSize;
+    if (mouseX > x1 && mouseX < x2 && mouseY > y1 && mouseY < y2) {
+      doDebug ? console.log({status: "Selecting square", mouseX, mouseY}) : undefined;
+      this.color = color(0, 255, 0);
+      return true;
+    } else {
+      this.color = color(255, 0, 0);
+      return false;
+    }
+  }
+
+  /**
+   * @public
+   * @function
+   * @name addConnector
+   * @description Adds a connector to the square.
+   * @param {string} side The side to add a connector to. Valid options are "top", "right", "bottom", and "left".
+   */
+  this.addConnector = function(side) {
+    doDebug ? console.debug({status: "adding connector to " + side}) : undefined;
+    if (side == "top") {
+      this.addTopConnector();
+    } else if (side == "right") {
+      this.addRightConnector();
+    } else if (side == "bottom") {
+      this.addBottomConnector();
+    } else if (side == "left") {
+      this.addLeftConnector();
+    }
+  }
+  /** @private */
+  this.addTopConnector = function() {
+    if (this.connectors[0] < 4)
+      this.connectors[0]++;
+    else
+      this.connectors[0] = 0;
+  }
+  /** @private */
+  this.addRightConnector = function() {
+    if (this.connectors[1] < 4)
+      this.connectors[1]++;
+    else
+      this.connectors[1] = 0;
+  }
+  /** @private */
+  this.addBottomConnector = function() {
+    if (this.connectors[2] < 4)
+      this.connectors[2]++;
+    else
+      this.connectors[2] = 0;
+  }
+  /** @private */
+  this.addLeftConnector = function() {
+    if (this.connectors[3] < 4)
+      this.connectors[3]++;
+    else
+      this.connectors[3] = 0;
   }
 }
