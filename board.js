@@ -91,7 +91,12 @@ function checkBoardForSquare(mx, my) {
  * @description Clear the board
  */
 function clearBoard() {
-  board = [[]];
+  for (var x = 0; x < width; x++) {
+    board[x] = [];
+    for (var y = 0; y < height; y++) {
+      board[x][y] = undefined;
+    }
+  }
   boardSet = true;
   squareId = 0;
 }

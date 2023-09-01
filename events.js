@@ -33,7 +33,7 @@ function mouseReleased() {
       let x = floor(mouseX / gridCellSize);
       let y = floor(mouseY / gridCellSize);
       if (board[x][y] == undefined) {
-        board[x][y] = new Square(x * gridCellSize, y * gridCellSize, squareId);
+        board[x][y] = new Square(x * gridCellSize, y * gridCellSize, squareId); // FIX. errors saying the spot on the grid is undefined. 
         squareId++;
       }
     }
@@ -59,12 +59,16 @@ function mousePressed() {
     }
   } else {
     if (boardSet == true) {
+      let foundSquare = false;
       board.forEach(function(e, index){
         e.forEach(function(d,index2){
-          if (selectedSquare == undefined && board[index][index2].select())
+          if (selectedSquare == undefined && board[index][index2].select() && foundSquare == false) {
             selectedSquare = board[index][index2];
-          if (selectedSquare != undefined && board[index][index2].select())
+            foundSquare = true;
+          }
+          if (selectedSquare != undefined && board[index][index2].select() && foundSquare == false) {
             selectedSquare = undefined;
+          }
         });
       });
     }
@@ -112,10 +116,23 @@ function keyPressed(event) {
 }
 
 function keyReleased(event) {
+  if (keyCode == BACKSPACE && preventionKey) {
+    if (selectedSquare != undefined) {
+      for (let x = 0; x < width; x++) {
+        for (let y = 0; y < height; y++) {
+          if (board[x][y] != undefined) { // FIX. errors saying y is undefined.
+            if (board[x][y].id == selectedSquare.id) {
+              board[x][y] = undefined;
+            }
+          }
+        }
+      }
+    }
+  }
   if (event.code == "ShiftRight") {
     preventionKey = false;
   }
-  if (event.keyCode == 18) { // FIX. Does not ever go true.
+  if (event.key === '1') { // FIX. Does not ever go true.
     doDebug ? console.debug({status: "key '1' pressed", event, key, keyCode}) : undefined;
     // add a connector to the top of the selected square. If there is no selected square, do nothing. If there is already 4 connectors, remove all connectors.
     if (selectedSquare != undefined) {
@@ -123,7 +140,7 @@ function keyReleased(event) {
       selectedSquare.addConnector("top");
     }
   }
-  if (event.keyCode == 18) {
+  if (event.key === '2') {
     // add a connector to the right of the selected square. If there is no selected square, do nothing. If there is already 4 connectors, remove all connectors.
     console.log({status: "Adding connector to right of square", selectedSquare});
     if (selectedSquare != undefined) {
@@ -131,7 +148,7 @@ function keyReleased(event) {
       selectedSquare.addConnector("right");
     }
   }
-  if (event.key == '3') {
+  if (event.key === '3') {
     // add a connector to the bottom of the selected square. If there is no selected square, do nothing. If there is already 4 connectors, remove all connectors.
     if (selectedSquare != undefined) {
       doDebug ? console.debug({status: "Adding connector to bottom of square", selectedSquare}) : undefined;
@@ -169,5 +186,25 @@ function keyTyped() {
     // clear the board when in edit mode.
     clearBoard();
   }
+  
+  if (key === 'l' || key === 'L') {
+    // load the board from the input box.
+    //let inFile = createFileInput();
 
+    loadBoard();
+  }
+  if (key === 's' || key === 'S') {
+    saveBoard();
+  }
+
+}
+
+/**
+ * @todo Develop a way to load a board from a file. and also parse the file. */
+function loadFile(file) {
+  console.log("Loading file");
+  console.log(file);
+  if (fileInput != undefined) {
+    fileInput.remove();
+  }
 }
