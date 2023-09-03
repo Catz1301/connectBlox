@@ -14,22 +14,14 @@ function saveBoard() {
   for (var x = 0; x < headerByteArray.length; x++){
       headerByteArray[x] = parseInt(fileHeaderData.substr(x*2,2), 16);
   }
-  randomData = '613b66e01e8a269cb240c4a63bc9a03c';
-  var dataByteArray = new Uint8Array(randomData.length/2);
-  for (var x = 0; x < dataByteArray.length; x++){
-      dataByteArray[x] = parseInt(randomData.substr(x*2,2), 16);
-  }
+  
 
-  let blob = new Blob([headerByteArray, dataByteArray], {type: "application/octet-stream"});
-  let testFile = new File([blob], "testFile1.bin", {type: "application/octet-stream"});
-  // var headerByteArray = new Uint8Array(fileHeader.length/2);
-  // for (var x = 0; x < headerByteArray.length; x++){
-  //     headerByteArray[x] = parseInt(fileHeader.substr(x*2,2), 16);
-  // }
+  let blob = new Blob([headerByteArray], {type: "application/octet-stream"});
+  
   let boardJson = JSON.stringify(board);
   let boardBlob = new Blob([boardJson], {type: "application/blox"});
   // create a file with the first 3 bytes as '0x420069'
-  let boardFile = new File([blob, boardBlob], "board.blox", {type: "application/blox"}); // this line causes unexpected output. 0x420069 is the magic number for blox files.
+  let boardFile = new File([blob, boardBlob], "board.blox", {type: "application/blox"}); 
   // save the board file, by creating a link and clicking it.
   let boardLink = document.createElement("a");
   let objURL = URL.createObjectURL(boardFile);
@@ -39,7 +31,7 @@ function saveBoard() {
   URL.revokeObjectURL(objURL);
 }
 
-function loadBoard() {
+function loadFile() {
   let fileInput = createFileInput(readFile);
   fileInput.position(0, 0);
 }
@@ -87,11 +79,18 @@ function readFile(inputFile) {
       let dataReader = dataStream.getReader();
       var dataRead = [];
       var finishedData = false;
-      dataReader.read().then(function processData({done, value}) { // Fix - This reads data, however, I need to extract the json from the data.
+      let boardObject = undefined;
+      dataReader.read().then(function processData({done, value}) {
         if (done) {
-          let data = byteDataToHexStr(dataRead[0]);
-          console.log(btoa(data));
-          doDebug ? console.debug({status: "Data read", dataRead, data}) : undefined;
+          let dataString = ""
+          for (let x = 0; x < dataRead[0].length; x++) {
+            dataString += String.fromCharCode(dataRead[0][x]);
+          }
+          console.log(dataString);
+          boardObject = JSON.parse(dataString);
+          console.log(boardObject);
+
+          doDebug ? console.debug({status: "Data read", dataRead, boardObject}) : undefined;
           finishedData = true;
           return;
         }
@@ -103,12 +102,16 @@ function readFile(inputFile) {
           // console.log(data);
           // doDebug ? console.debug({status: "Data read", dataRead, data}) : undefined;
           finishedData = true;
+          if (boardObject != undefined) {
+            setBoard(boardObject);
+          }
           return;
         }
       });
     }
-  });  
+  });
 }
+
 
 function byteDataToHexStr(bytes) {
   console.log(bytes)

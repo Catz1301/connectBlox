@@ -1,11 +1,13 @@
 /**
- * @function Square
+ * @Class Square
  * @description A square that can be rotated and moved around the board.
  * @param {number} x The x position of the square
  * @param {number} y The y position of the square
  * @param {number} id The id of the square
  */
-function Square(x, y, id = 1) {
+
+class Square {
+ constructor(x, y, id = 1) {
   this.x = x;
   this.y = y;
   this.id = id;
@@ -15,14 +17,14 @@ function Square(x, y, id = 1) {
   this.holding = false;
   this.lastSuccessfulPosX = x;
   this.lastSuccessfulPosY = y;
-
+ }
   /**
    * @public
    * @function
    * @name draw
    * @description draws the square on the screen
    */
-  this.draw = function() {
+  drawSquare() {
     fill(this.color);
     // draw the square with 5 pixel padding
     var padding = 5;
@@ -150,7 +152,7 @@ function Square(x, y, id = 1) {
    * @name rotateSquare
    * @description rotates the square 90 degrees clockwise
    */
-  this.rotateSquare = function() {
+  rotateSquare() {
     // shift all connectors to the right, and move the last connector to the first position.
     var lastConnector = this.connectors[this.connectors.length - 1];
     for (var i = this.connectors.length - 1; i > 0; i--) {
@@ -167,7 +169,7 @@ function Square(x, y, id = 1) {
    * @param {number} posX the x position of the mouse
    * @param {number} posY the y position of the mouse
    */
-  this.move = function(posX, posY) {
+  move(posX, posY) {
     this.x = posX - gridCellSize / 2;
     this.y = posY - gridCellSize / 2;
   }
@@ -178,7 +180,7 @@ function Square(x, y, id = 1) {
    * @name click
    * @description rotates the square 90 degrees clockwise
    */
-  this.click = function() {
+  click() {
     let x1 = this.x, x2 = this.x + gridCellSize;
     let y1 = this.y, y2 = this.y + gridCellSize;
     if (mouseX > x1 && mouseX < x2 && mouseY > y1 && mouseY < y2) {
@@ -199,7 +201,7 @@ function Square(x, y, id = 1) {
    * @param {number} y the y position of the mouse
    * @returns {boolean} true if the mouse is over the square
    */
-  this.check = function(x, y) {
+  check(x, y) {
     let x1 = this.x, x2 = this.x + gridCellSize;
     let y1 = this.y, y2 = this.y + gridCellSize;
     if (x > x1 && x < x2 && y > y1 && y < y2) {
@@ -216,7 +218,7 @@ function Square(x, y, id = 1) {
    * @name hold
    * @returns {Square|undefined} the square that is being held, or undefined if the mouse is not over this square.
    */
-  this.hold = function() {
+  hold() {
     let x1 = this.x, x2 = this.x + gridCellSize;
     let y1 = this.y, y2 = this.y + gridCellSize;
     if (mouseX > x1 && mouseX < x2 && mouseY > y1 && mouseY < y2) {
@@ -235,7 +237,7 @@ function Square(x, y, id = 1) {
    * @param {number} y the y position of the mouse
    * @returns 
    */
-  this.release = function(x, y) {
+  release(x, y) {
     // snap position to grid
     let squareAtReleasePos = checkBoardForSquare(x, y);
     if (squareAtReleasePos != undefined && squareAtReleasePos.id == this.id)
@@ -278,7 +280,7 @@ function Square(x, y, id = 1) {
    * @description returns true if the mouse is over it
    * @returns {boolean} true if the mouse is over it
    */
-  this.select = function() {
+  select() {
     let x1 = this.x, x2 = this.x + gridCellSize;
     let y1 = this.y, y2 = this.y + gridCellSize;
     if (mouseX > x1 && mouseX < x2 && mouseY > y1 && mouseY < y2) {
@@ -298,7 +300,7 @@ function Square(x, y, id = 1) {
    * @description Adds a connector to the square.
    * @param {string} side The side to add a connector to. Valid options are "top", "right", "bottom", and "left".
    */
-  this.addConnector = function(side) {
+  addConnector(side) {
     doDebug ? console.debug({status: "adding connector to " + side}) : undefined;
     if (side == "top") {
       this.addTopConnector();
@@ -311,31 +313,45 @@ function Square(x, y, id = 1) {
     }
   }
   /** @private */
-  this.addTopConnector = function() {
+  addTopConnector() {
     if (this.connectors[0] < 4)
       this.connectors[0]++;
     else
       this.connectors[0] = 0;
   }
   /** @private */
-  this.addRightConnector = function() {
+  addRightConnector() {
     if (this.connectors[1] < 4)
       this.connectors[1]++;
     else
       this.connectors[1] = 0;
   }
   /** @private */
-  this.addBottomConnector = function() {
+  addBottomConnector() {
     if (this.connectors[2] < 4)
       this.connectors[2]++;
     else
       this.connectors[2] = 0;
   }
   /** @private */
-  this.addLeftConnector = function() {
+  addLeftConnector() {
     if (this.connectors[3] < 4)
       this.connectors[3]++;
     else
       this.connectors[3] = 0;
+  }
+
+  static parseObj = function(obj) {
+    let objKeys = Object.keys(obj);
+    console.log(objKeys);
+    if (objKeys.includes("x") && objKeys.includes("y") && objKeys.includes("id") && objKeys.includes("connectors")) {
+      let square = new Square(obj.x, obj.y, obj.id);
+      square.connectors = obj.connectors;
+      square.color = color(obj.color.levels[0], obj.color.levels[1], obj.color.levels[2]);
+      return square;
+    } else {
+      console.error("The object passed to parseObj() is not a square.");
+      return undefined;
+    }
   }
 }

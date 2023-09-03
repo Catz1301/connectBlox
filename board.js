@@ -21,6 +21,8 @@ function createBoard(width, height) {
       if (random(0, 1) <= chanceOfSquare) {
         board[x][y] = new Square(x * gridCellSize, y * gridCellSize, squareId);
         squareId++;
+      } else {
+        board[x][y] = undefined;
       }
     }
   }
@@ -37,7 +39,7 @@ function drawBoard(board) {
   for (var x = 0; x < board.length; x++) {
     for (var y = 0; y < board[x].length; y++) {
       if (board[x][y] != undefined)
-        board[x][y].draw();
+        board[x][y].drawSquare();
     }
   }
 }
@@ -99,4 +101,18 @@ function clearBoard() {
   }
   boardSet = true;
   squareId = 0;
+}
+
+function setBoard(boardObj) {
+  //set the board
+  clearBoard();
+  boardObj.forEach(function(e, index) {
+    e.forEach(function(d, index2) {
+      if (boardObj[index][index2] != undefined) {
+        board[index][index2] = Square.parseObj(boardObj[index][index2]);
+        squareId++;
+      }
+    })
+  });
+  console.debug({status: "Board set", board});
 }

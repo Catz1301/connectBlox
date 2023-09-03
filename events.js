@@ -12,8 +12,12 @@ function mouseReleased() {
     doDebug ? console.debug({status: "Resetting drag measurements", CaptureMousePos: {x: captureMouseX, y: captureMouseY}, startedCapture, dragging, holdingSquare}) : undefined;
     if (boardSet == true && holdingSquare == undefined) {
       board.forEach(function(e, index){
+        // console.debug(e);
         e.forEach(function(d,index2){
-          board[index][index2].click()
+          // console.debug(d);
+          // if (e == )
+          if (board[index][index2] != undefined)
+            board[index][index2].click()
         });
       });
       doDebug ? console.debug({"Code Location": "mouseReleased", status: "clicked square", holdingSquare}) : undefined;
@@ -36,6 +40,10 @@ function mouseReleased() {
         board[x][y] = new Square(x * gridCellSize, y * gridCellSize, squareId); // FIX. errors saying the spot on the grid is undefined. 
         squareId++;
       }
+    }
+    if (selectedSquare != undefined && holdingSquare != undefined) {
+      // holdingSquare = holdingSquare.release();
+      selectedSquare.release();
     }
   }
 
@@ -62,12 +70,14 @@ function mousePressed() {
       let foundSquare = false;
       board.forEach(function(e, index){
         e.forEach(function(d,index2){
-          if (selectedSquare == undefined && board[index][index2].select() && foundSquare == false) {
-            selectedSquare = board[index][index2];
-            foundSquare = true;
-          }
-          if (selectedSquare != undefined && board[index][index2].select() && foundSquare == false) {
-            selectedSquare = undefined;
+          if (board[index][index2] != undefined) {
+            if (selectedSquare == undefined && board[index][index2].select() && foundSquare == false) {
+              selectedSquare = board[index][index2];
+              foundSquare = true;
+            }
+            if (selectedSquare != undefined && board[index][index2].select() && foundSquare == false) {
+              selectedSquare = undefined;
+            }
           }
         });
       });
@@ -76,17 +86,19 @@ function mousePressed() {
 }
 
 function mouseDragged() {
-  if (isEditing)
-    return false;
+  // if (isEditing)
+  //   return false;
 
   doDebug ? console.debug({status: "Dragging", dragging,}) : undefined;
   if (abs(captureMouseX - mouseX) > 5 || abs(captureMouseY - mouseY) > 5) {
     dragging = true;
     board.forEach(function(e, index){
       e.forEach(function(d,index2){
-        if (board[index][index2].hold() != undefined && holdingSquare == undefined) {
-        holdingSquare = board[index][index2].hold();
-        doDebug ? console.debug({status: "Holding square", holdingSquare,}) : undefined;
+        if (board[index][index2] != undefined) {
+          if (board[index][index2].hold() != undefined && holdingSquare == undefined) {
+          holdingSquare = board[index][index2].hold();
+          doDebug ? console.debug({status: "Holding square", holdingSquare,}) : undefined;
+          }
         }
       });
     });
@@ -117,17 +129,17 @@ function keyPressed(event) {
 
 function keyReleased(event) {
   if (keyCode == BACKSPACE && preventionKey) {
-    if (selectedSquare != undefined) {
-      for (let x = 0; x < width; x++) {
-        for (let y = 0; y < height; y++) {
-          if (board[x][y] != undefined) { // FIX. errors saying y is undefined.
-            if (board[x][y].id == selectedSquare.id) {
-              board[x][y] = undefined;
+    board.forEach(function(e, index){
+      e.forEach(function(d,index2){
+        if (board[index][index2] != undefined) {
+          if (selectedSquare != undefined) {
+            if (selectedSquare.id == board[index][index2].id) {
+              board[index][index2] = undefined;
             }
-          }
         }
-      }
-    }
+        }
+      });
+    });
   }
   if (event.code == "ShiftRight") {
     preventionKey = false;
@@ -169,6 +181,11 @@ function keyTyped() {
   if (key === 'E') {
     // toggle edit mode.
     isEditing = !isEditing;
+    if (!isEditing) {
+      addingSquares = false;
+      selectedSquare.color = color(255, 0, 0);
+      selectedSquare = undefined;
+    }
     doDebug ? console.debug({status: "isEditing", isEditing,}) : undefined;
   }
   if (key === 'd' || key === 'D') {
@@ -191,7 +208,7 @@ function keyTyped() {
     // load the board from the input box.
     //let inFile = createFileInput();
 
-    loadBoard();
+    loadFile();
   }
   if (key === 's' || key === 'S') {
     saveBoard();
