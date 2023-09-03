@@ -1,9 +1,9 @@
-var gridWidth = 5;
-var gridHeight = 5;
+var gridWidth = 10;
+var gridHeight = 10;
 var gridCellSize = 10;
 var isFullScreen = false;
 var bgColor = 0x28262c;
-var doDebug = true; 
+var doDebug = false; 
 
 var gridSizesSet = false;
 var boardSet = false;
@@ -65,8 +65,6 @@ function draw() {
 // use from "Square.js";
 
 function drawGrid() {
-  var gridWidth = 10;
-  var gridHeight = 10;
   gridCellSize = floor(height / gridHeight);
   stroke(250);
   fill(40,38,44);
@@ -80,6 +78,6 @@ function drawGrid() {
 function displayStartScreen() {
   fill(0);
   textSize(32);
-  fill(255);
+  fill(lerpColor(color(0), color(255), 1.0));
   text("Click to start", (width/2)-(7*16), (height/2)-16);
 }

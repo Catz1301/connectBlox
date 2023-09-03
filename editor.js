@@ -86,11 +86,8 @@ function readFile(inputFile) {
           for (let x = 0; x < dataRead[0].length; x++) {
             dataString += String.fromCharCode(dataRead[0][x]);
           }
-          console.log(dataString);
           boardObject = JSON.parse(dataString);
-          console.log(boardObject);
-
-          doDebug ? console.debug({status: "Data read", dataRead, boardObject}) : undefined;
+          doDebug ? console.debug({status: "Data read", dataRead, dataString, boardObject}) : undefined;
           finishedData = true;
           return;
         }
@@ -114,7 +111,7 @@ function readFile(inputFile) {
 
 
 function byteDataToHexStr(bytes) {
-  console.log(bytes)
+  doDebug ? console.debug({status: "Converting bytes to hex string", bytes}) : undefined;
   let hexStr = ""
   bytes.forEach(byte => {
     let byteStr = byte.toString(16);

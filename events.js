@@ -43,7 +43,9 @@ function mouseReleased() {
     }
     if (selectedSquare != undefined && holdingSquare != undefined) {
       // holdingSquare = holdingSquare.release();
-      selectedSquare.release();
+      selectedSquare.color = color(255, 0, 0);
+      selectedSquare = selectedSquare.release();
+      holdingSquare = undefined;
     }
   }
 
@@ -154,7 +156,7 @@ function keyReleased(event) {
   }
   if (event.key === '2') {
     // add a connector to the right of the selected square. If there is no selected square, do nothing. If there is already 4 connectors, remove all connectors.
-    console.log({status: "Adding connector to right of square", selectedSquare});
+    doDebug ? console.log({status: "Adding connector to right of square", selectedSquare}) : undefined;
     if (selectedSquare != undefined) {
       doDebug ? console.debug({status: "Adding connector to right of square", selectedSquare}) : undefined;
       selectedSquare.addConnector("right");
@@ -214,13 +216,15 @@ function keyTyped() {
     saveBoard();
   }
 
+  if (key === 'r' || key === 'R') {
+    shuffleBoard();
+  }
 }
 
 /**
  * @todo Develop a way to load a board from a file. and also parse the file. */
 function loadFile(file) {
-  console.log("Loading file");
-  console.log(file);
+  doDebug ? console.debug({status: "Loading file", file}) : undefined;
   if (fileInput != undefined) {
     fileInput.remove();
   }

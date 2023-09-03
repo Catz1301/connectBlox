@@ -2,12 +2,12 @@
  * @public
  * @function
  * @name createBoard
- * @param {number} width The width of the board
- * @param {number} height The height of the board
+ * @param {number} boardWidth The width of the board
+ * @param {number} boardHeight The height of the board
  * @returns 
  */
 
-function createBoard(width, height) {
+function createBoard(boardWidth, boardHeight) {
   /** 
    * @var
    * @name board
@@ -15,15 +15,26 @@ function createBoard(width, height) {
    */
   var board = [[]];
   // let squareId = 0;
-  for (var x = 0; x < width; x++) {
+  for (var x = 0; x < boardWidth; x++) {
     board[x] = [];
-    for (var y = 0; y < height; y++) {
+    for (var y = 0; y < boardHeight; y++) {
       if (random(0, 1) <= chanceOfSquare) {
         board[x][y] = new Square(x * gridCellSize, y * gridCellSize, squareId);
         squareId++;
       } else {
         board[x][y] = undefined;
       }
+    }
+  }
+  return board;
+}
+
+function createEmptyBoard(width, height) {
+  var board = [[]];
+  for (var x = 0; x < width; x++) {
+    board[x] = [];
+    for (var y = 0; y < height; y++) {
+      board[x][y] = undefined;
     }
   }
   return board;
@@ -93,14 +104,15 @@ function checkBoardForSquare(mx, my) {
  * @description Clear the board
  */
 function clearBoard() {
-  for (var x = 0; x < width; x++) {
+  for (var x = 0; x < gridWidth; x++) {
     board[x] = [];
-    for (var y = 0; y < height; y++) {
+    for (var y = 0; y < gridHeight; y++) {
       board[x][y] = undefined;
     }
   }
   boardSet = true;
   squareId = 0;
+  
 }
 
 function setBoard(boardObj) {
@@ -114,5 +126,31 @@ function setBoard(boardObj) {
       }
     })
   });
-  console.debug({status: "Board set", board});
+  doDebug ? console.debug({status: "Board set", board}) : undefined;
+}
+
+// shuffle the board by gathering all the squares and put them into an array. then clear the board, and put the squares back in the board in a random order.
+function shuffleBoard() {
+  let squares = [];
+  board.forEach(function(e, index) {
+    e.forEach(function(d, index2) {
+      if (board[index][index2] != undefined) {
+        squares.push(board[index][index2]);
+      }
+    })
+  });
+  clearBoard();
+  // board = createEmptyBoard(gridWidth, gridHeight);
+  while (squares.length > 0) {
+    board.forEach(function(e, index) {
+      e.forEach(function(d, index2) {
+        if (random(0, 1) <= chanceOfSquare && squares.length > 0) {
+          let tempSquare = squares.pop();
+          tempSquare.x = index * gridCellSize;
+          tempSquare.y = index2 * gridCellSize;
+          board[index][index2] = tempSquare;
+        }
+      });
+    });
+  }
 }
