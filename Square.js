@@ -7,10 +7,11 @@
  */
 
 class Square {
- constructor(x, y, id = 1) {
+ constructor(x, y, id = 1, lockRotation = false) {
   this.x = x;
   this.y = y;
   this.id = id;
+  this.lockRotation = lockRotation; //lk; <-- cat stepped on the keyboard. I'm leaving it in because it's funny.
   this.color = color(255, 0, 0);
   // set the value on each side of the square with a random number between 0 and 4, including 0 and 4.
   this.connectors = [floor(random(0, 5)), floor(random(0, 5)), floor(random(0, 5)), floor(random(0, 5))];
@@ -152,14 +153,16 @@ class Square {
    * @name rotateSquare
    * @description rotates the square 90 degrees clockwise
    */
-  rotateSquare() {
-    // shift all connectors to the right, and move the last connector to the first position.
-    var lastConnector = this.connectors[this.connectors.length - 1];
-    for (var i = this.connectors.length - 1; i > 0; i--) {
-      this.connectors[i] = this.connectors[i - 1];
+  rotateSquare(editing = false) {
+    if (this.lockRotation == false || editing == true) {
+      // shift all connectors to the right, and move the last connector to the first position.
+      var lastConnector = this.connectors[this.connectors.length - 1];
+      for (var i = this.connectors.length - 1; i > 0; i--) {
+        this.connectors[i] = this.connectors[i - 1];
+      }
+      this.connectors[0] = lastConnector;
     }
-    this.connectors[0] = lastConnector;
-
+    
   }
   
   /**

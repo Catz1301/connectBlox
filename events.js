@@ -137,6 +137,8 @@ function keyReleased(event) {
           if (selectedSquare != undefined) {
             if (selectedSquare.id == board[index][index2].id) {
               board[index][index2] = undefined;
+              holdingSquare = undefined;
+              selectedSquare = undefined;
             }
         }
         }
@@ -174,6 +176,18 @@ function keyReleased(event) {
     if (selectedSquare != undefined) {
       doDebug ? console.debug({status: "Adding connector to left of square", selectedSquare}) : undefined;
       selectedSquare.addConnector("left");
+    }
+  }
+  if (isEditing) {
+    if (keyCode == LEFT_ARROW) {
+      if (selectedSquare != undefined) {
+        if (selectedSquare != undefined) {
+          for (let i = 0; i < 3; i++)
+            selectedSquare.rotateSquare(true);
+        }
+      }
+    } else if (keyCode == RIGHT_ARROW) {
+      selectedSquare.rotateSquare(true);
     }
   }
 }
