@@ -20,6 +20,8 @@ var startedCapture = false;
 var dragging = false;
 var chanceOfSquare = 0.3;
 
+var showingContextMenu = false; // todo: implement context menu
+
 /**
  * @var
  * @name isEditing
@@ -80,4 +82,10 @@ function displayStartScreen() {
   textSize(32);
   fill(lerpColor(color(0), color(255), 1.0));
   text("Click to start", (width/2)-(7*16), (height/2)-16);
+}
+
+// display a context menu with options for the user to choose from.
+function displayContextMenu() {
+  // display a context menu with options for the user to choose from.
+  rect(mouseX, mouseY, 100, 100);
 }

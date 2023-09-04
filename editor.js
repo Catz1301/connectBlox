@@ -32,7 +32,7 @@ function saveBoard() {
 }
 
 function loadFile() {
-  let fileInput = createFileInput(readFile);
+  fileInput = createFileInput(readFile);
   fileInput.position(0, 0);
 }
 
@@ -45,6 +45,7 @@ function loadFile() {
  * @returns {boolean} whether or not the file is valid, and whether or not the file converted to board data successfully.
  */
 function readFile(inputFile) {
+  isFullScreen = false;
   doDebug ? console.debug({status: "Reading file", inputFile}) : undefined;
   // let stream = file.stream();
   if (inputFile.file.size <= 3) {
@@ -64,7 +65,13 @@ function readFile(inputFile) {
       doDebug ? console.debug({status: "Header read", headerDataRead, "header data": headerData}) : undefined;
       if (headerData == "420690") {
         console.log("File is a valid blox file.");
+        fileInput.remove();
+        fileInput = undefined;
+        // fullscreen();
         validHeader = true;
+      } else {
+        console.error("File is not a valid blox file.");
+        validHeader = false;
       }
       finishedHeader = true;
       return;
