@@ -21,6 +21,7 @@ var dragging = false;
 var chanceOfSquare = 0.3;
 
 var showingContextMenu = false; // todo: implement context menu
+var enableFeedback = true;
 
 /**
  * @var
@@ -31,10 +32,29 @@ var showingContextMenu = false; // todo: implement context menu
 var isEditing = false;
 
 var squareId = 0;
+var instructions = [
+  "Shift + E: Toggle edit mode",
+  "a or A (in edit mode): Toggle adding squares on click",
+  "s (in edit mode): Save board",
+  "l: Load board",
+  "1 (in edit mode): add connector to top of selected square",
+  "2 (in edit mode): add connector to right of selected square",
+  "3 (in edit mode): add connector to bottom of selected square",
+  "4 (in edit mode): add connector to left of selected square",
+  "r: Shuffle board",
+  "Left Arrow (In edit mode): Rotate selected square counter-clockwise",
+  "Right Arrow (In edit mode): Rotate selected square clockwise",
+  "Right Shift + Backspace: Delete selected square",
+  "Right Shift + c: Clear board",
+  "d: Toggle debug mode"
+]
 
 
 function setup() {
   createCanvas(displayWidth, displayHeight);
+  alert("This game is in a beta stage of development. Any feedback would be appreciated.\nYou can contact me via email or dm me in Instagram.\n\nEmail: developingwhiskers192@gmail.com\nInstagram: www.instagram.com/whiskersofcode/\n\nThank you for playing!");
+  // alert("Shift + E: TOggle edit mode\na or A (in edit mode): Toggle adding squares on click\ns (in edit mode): Save board\nl: Load board\n1 (in edit mode): add connector to top of selected square\n2 (in edit mode): add connector to right of selected square\n3 (in edit mode): add connector to bottom of selected square\n4 (in edit mode): add connector to left of selected square\nr: Shuffle board\nLeft Arrow (In edit mode): Rotate selected square counter-clockwise\nRight Arrow (In edit mode): Rotate selected square clockwise\n\nClick to start");
+  
   // canvas.requestFullscreen();
 }
 
@@ -56,6 +76,8 @@ function draw() {
     }
     drawBoard(board);
   }
+  if (enableFeedback)
+    drawFeedbackButton();
 }
 
 // check the board to see if there is a square at the mouse position. If there is, return it. If not, return undefined.
@@ -65,6 +87,23 @@ function draw() {
 
 /* create a square with a value on each side, up to four. Fill it with a redish color. These squares must be able to move around the board. */
 // use from "Square.js";
+
+function drawFeedbackButton() {
+  // detect if the mouse is over the button.
+  if (mouseX > width - 155 && mouseX < width - 5 && mouseY > height - 80 && mouseY < height - 5) {
+    fill(8, 84, 158);
+  } else {
+    fill(38, 114, 188);
+  }
+  stroke(250);
+  strokeWeight(1);
+  rect(width - 155, height - 80, 150, 75);
+  // draw the text 'feedback' in the middle of the button.
+  fill(250);
+  textSize(24);
+  noStroke();
+  text("Feedback", width - 155 + 21, height - 75 + (75 / 2)+4);
+}
 
 function drawGrid() {
   gridCellSize = floor(height / gridHeight);
@@ -78,14 +117,21 @@ function drawGrid() {
 }
 
 function displayStartScreen() {
+  noStroke();
   fill(0);
   textSize(32);
-  fill(lerpColor(color(0), color(255), 1.0));
-  text("Click to start", (width/2)-(7*16), (height/2)-16);
+  fill(255);
+  // show the instructions.
+  for (var i = 0; i < instructions.length; i++) {
+    text(instructions[i], 10, 32 + (i * 40));
+  }
+  stroke(0);
+  text("Click to start", (width/2)-(7*16), 32 + ((instructions.length + 1)  * 40));
 }
 
 // display a context menu with options for the user to choose from.
 function displayContextMenu() {
   // display a context menu with options for the user to choose from.
+
   rect(mouseX, mouseY, 100, 100);
 }

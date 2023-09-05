@@ -52,6 +52,13 @@ function mouseReleased() {
 }
 
 function mousePressed() {
+  if (enableFeedback) {
+    if (mouseX > width - 155 && mouseX < width - 5 && mouseY > height - 80 && mouseY < height - 5) {
+      // open feedback form.
+
+      window.open("https://forms.gle/dWBSHJXKQWmKxMZU9", "_blank");
+    }
+  }
   if (!isEditing) {
     if (startedCapture == false) {
       captureMouseX = mouseX;
