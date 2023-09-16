@@ -84,6 +84,12 @@ function draw() {
       gridCellSize = floor(height / gridHeight);
       gridSizesSet = true;
     }
+    let savedLevel = getItem("level");
+    if (savedLevel != null) {
+      level = savedLevel;
+    } else {
+      storeItem("level", 0);
+    }
     if (level != -1) {
       if (level < boards.length) {
         if (boardSet == false) {
@@ -93,15 +99,31 @@ function draw() {
       }
     }
     if (boardSet == false) {
+      if (level < boards.length) {
+        setBoard(boards[level]);
+        boardSet = true;
+      } else {
+        alert("You have completed all the levels. Thank you for playing! Feel free to load in a blox file and play some custom levels. Or make your own levels and share them with your friends!");
+      }
+    }
+    
+
+    if (boardSet == false) {
       board = createBoard(gridWidth, gridHeight);
       boardSet = true;
     }
     // console.log(board);
     // checkForAnomolies(); // not needed now.
     drawBoard(board);
+    if (doDebug) {
+      // draw the mouse x and y coordinates in the top left corner.
+      fill(255);
+      textSize(16);
+      text("Mouse X: " + mouseX + "\nMouse Y: " + mouseY, 10, 20);
+    }
+    if (enableFeedback)
+      drawFeedbackButton();
   }
-  if (enableFeedback)
-    drawFeedbackButton();
 }
 
 // check the board to see if there is a square at the mouse position. If there is, return it. If not, return undefined.

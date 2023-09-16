@@ -24,6 +24,7 @@ class Square {
     this.holding = false;
     this.lastSuccessfulPosX = x;
     this.lastSuccessfulPosY = y;
+    this.side = Square.side;
   }
 
   static side = {
@@ -204,11 +205,21 @@ class Square {
   rotateSquare(editing = false) {
     if (this.lockRotation == false || editing == true) {
       // shift all connectors to the right, and move the last connector to the first position.
-      var lastConnector = this.connectors[this.connectors.length - 1];
+      let lastConnector = this.connectors[this.connectors.length - 1];
       for (var i = this.connectors.length - 1; i > 0; i--) {
         this.connectors[i] = this.connectors[i - 1];
       }
       this.connectors[0] = lastConnector;
+      let lastSide = this.side[this.side.length - 1];
+      for (var i = this.side.length - 1; i > 0; i--) {
+        this.side[i] = this.side[i - 1];
+      }
+      this.side[0] = lastSide;
+      let lastSolvedSide = this.solvedSides[this.solvedSides.length - 1];
+      for (var i = this.solvedSides.length - 1; i > 0; i--) {
+        this.solvedSides[i] = this.solvedSides[i - 1];
+      }
+      this.solvedSides[0] = lastSolvedSide;
     }
     
   }
@@ -299,21 +310,7 @@ class Square {
     if (squareAtReleasePos == undefined) {
       emptySquare = true;
     }
-    /* if (squareAtReleasePos.length != 0) {
-      for (let i = 0; i < squareAtReleasePos.length; i++) {
-        if (squareAtReleasePos[i].id == this.id) {
-          if (squareAtReleasePos.length == 1) // must be this square only, therefore is an empty square we're over
-            emptySquare = true;
-          doDebug ? console.log("%cthe square at " + x + ", " + y + " is the same as the square being released", "color: green; background-color: cobalt") : undefined;
-          continue;
-        } else {
-          doDebug ? console.log("%c%b", "color: orange", checkBoardForSquare(x, y)) : undefined;
-          // emptySquare = true;
-        }
-      }
-    } else {
-      emptySquare = true;
-    } */
+    
     if (emptySquare == true) {
       this.x = floor((this.x + (gridCellSize / 2)) / gridCellSize) * gridCellSize;
       this.y = floor((this.y + (gridCellSize / 2)) / gridCellSize) * gridCellSize;
@@ -330,8 +327,6 @@ class Square {
     } else {
       this.x = this.lastSuccessfulPosX;
       this.y = this.lastSuccessfulPosY;
-      // this.gridX = floor(this.x / gridCellSize);
-      // this.gridY = floor(this.y / gridCellSize); // Remove after more successful testing
       return {oldGridX, oldGridY, gridX: this.gridX, gridY: this.gridY, newSquare: undefined};
     }
   }

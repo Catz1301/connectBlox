@@ -26,7 +26,7 @@ function mouseReleased() {
       // holdingSquare.holding = false;
       doDebug ? console.debug({"Code Location": "mouseReleased", status: "holdingSquare holding status reset", holdingSquare}) : undefined;
       holdingSquareRelease = holdingSquare.release(mouseX, mouseY);
-      console.log(holdingSquareRelease)
+      doDebug ? console.log(holdingSquareRelease) : undefined;
       // board[holdingSquareRelease.gridX][holdingSquareRelease.gridY] = board[holdingSquareRelease.oldGridX][holdingSquareRelease.oldGridY];
       // board[holdingSquareRelease.oldGridX][holdingSquareRelease.oldGridY] = undefined;
       holdingSquare = holdingSquareRelease.newSquare;
@@ -251,6 +251,17 @@ function keyTyped() {
 
   if (key === 'r' || key === 'R') {
     shuffleBoard();
+  }
+  if (key === '`') {
+    let confirmReset = confirm("Are you sure you want to reset all your progress? This will put you at level 0.");
+    if (confirmReset) {
+      level = -1;
+      clearBoard();
+      boardSet = false;
+      solved = false;
+      squareId = 0;
+      storeItem("level", 0);
+    }
   }
 }
 

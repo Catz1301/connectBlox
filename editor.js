@@ -61,7 +61,6 @@ function readFile(inputFile) {
   headerReader.read().then(function processData({done, value}) {
     if (done) {
       let headerData = byteDataToHexStr(headerDataRead[0]);
-      console.log(headerData);
       doDebug ? console.debug({status: "Header read", headerDataRead, "header data": headerData}) : undefined;
       if (headerData == "420690") {
         console.log("File is a valid blox file.");
