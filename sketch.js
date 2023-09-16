@@ -97,7 +97,7 @@ function draw() {
       boardSet = true;
     }
     // console.log(board);
-    checkForAnomolies(); // fix thisd
+    // checkForAnomolies(); // not needed now.
     drawBoard(board);
   }
   if (enableFeedback)
