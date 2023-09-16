@@ -25,9 +25,14 @@ function mouseReleased() {
       doDebug ? console.debug({"Code Location": "mouseReleased", status: "resetting holdingSquare holding status", holdingSquare}) : undefined;
       // holdingSquare.holding = false;
       doDebug ? console.debug({"Code Location": "mouseReleased", status: "holdingSquare holding status reset", holdingSquare}) : undefined;
-      holdingSquare = holdingSquare.release(mouseX, mouseY);
+      holdingSquareRelease = holdingSquare.release(mouseX, mouseY);
+      console.log(holdingSquareRelease)
+      // board[holdingSquareRelease.gridX][holdingSquareRelease.gridY] = board[holdingSquareRelease.oldGridX][holdingSquareRelease.oldGridY];
+      // board[holdingSquareRelease.oldGridX][holdingSquareRelease.oldGridY] = undefined;
+      holdingSquare = holdingSquareRelease.newSquare;
       doDebug ? console.debug({"Code Location": "mouseReleased", status: "released square", holdingSquare}) : undefined;
     }
+    attemptSolve();
   }
   /* ----- EDITING MODE ACTIONS ----- */
 
@@ -44,7 +49,11 @@ function mouseReleased() {
     if (selectedSquare != undefined && holdingSquare != undefined) {
       // holdingSquare = holdingSquare.release();
       selectedSquare.color = color(255, 0, 0);
-      selectedSquare = selectedSquare.release();
+      selectedSquareRelease = selectedSquare.release(mouseX, mouseY);
+      board[selectedSquareRelease.gridX][selectedSquareRelease.gridY] = selectedSquare;
+      board[selectedSquareRelease.oldGridX][selectedSquareRelease.oldGridY] = undefined;
+      selectedSquare = selectedSquareRelease.newSquare;
+      
       holdingSquare = undefined;
     }
   }
@@ -133,6 +142,9 @@ function keyPressed(event) {
     } else {
       return false;
     }
+  }
+  if (keyCode == DELETE) {
+    resetBoard();
   }
 }
 

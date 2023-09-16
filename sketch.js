@@ -1,3 +1,7 @@
+// library stuff
+// var scribble;
+
+// global variable stuff
 var gridWidth = 10;
 var gridHeight = 10;
 var gridCellSize = 10;
@@ -12,7 +16,9 @@ var boardSet = false;
  * @name board
  * @type {Square[][]}
  */
+// game variable stuff
 var board = [[]];
+var solved = false;
 var holdingSquare = undefined;
 var captureMouseX = 0;
 var captureMouseY = 0;
@@ -32,6 +38,7 @@ var enableFeedback = true;
 var isEditing = false;
 
 var squareId = 0;
+var level = 0; // -1 for custom boards.
 var instructions = [
   "Shift + E: Toggle edit mode",
   "a or A (in edit mode): Toggle adding squares on click",
@@ -42,6 +49,7 @@ var instructions = [
   "3 (in edit mode): add connector to bottom of selected square",
   "4 (in edit mode): add connector to left of selected square",
   "r: Shuffle board",
+  "del: Reset board",
   "Left Arrow (In edit mode): Rotate selected square counter-clockwise",
   "Right Arrow (In edit mode): Rotate selected square clockwise",
   "Right Shift + Backspace: Delete selected square",
@@ -53,16 +61,22 @@ var instructions = [
 function setup() {
   createCanvas(displayWidth, displayHeight);
   alert("This game is in a beta stage of development. Any feedback would be appreciated.\nYou can contact me via email or dm me in Instagram.\n\nEmail: developingwhiskers192@gmail.com\nInstagram: www.instagram.com/whiskersofcode/\n\nThank you for playing!");
-  // alert("Shift + E: TOggle edit mode\na or A (in edit mode): Toggle adding squares on click\ns (in edit mode): Save board\nl: Load board\n1 (in edit mode): add connector to top of selected square\n2 (in edit mode): add connector to right of selected square\n3 (in edit mode): add connector to bottom of selected square\n4 (in edit mode): add connector to left of selected square\nr: Shuffle board\nLeft Arrow (In edit mode): Rotate selected square counter-clockwise\nRight Arrow (In edit mode): Rotate selected square clockwise\n\nClick to start");
+  // alert("Shift + E: Toggle edit mode\na or A (in edit mode): Toggle adding squares on click\ns (in edit mode): Save board\nl: Load board\n1 (in edit mode): add connector to top of selected square\n2 (in edit mode): add connector to right of selected square\n3 (in edit mode): add connector to bottom of selected square\n4 (in edit mode): add connector to left of selected square\nr: Shuffle board\nLeft Arrow (In edit mode): Rotate selected square counter-clockwise\nRight Arrow (In edit mode): Rotate selected square clockwise\n\nClick to start");
   
   // canvas.requestFullscreen();
+  // scribble = new Scribble();
 }
 
 function draw() {
-  background(40, 38, 44);
+  if (solved == false) {
+    background(40, 38, 44);
+  } else {
+    background(40, 50, 44);
+  }
   if (isFullScreen == false) {
     displayStartScreen();
   } else {
+    
     //drawGrid();
     if (gridSizesSet == false) {
       var gridWidth = 10;
@@ -70,10 +84,20 @@ function draw() {
       gridCellSize = floor(height / gridHeight);
       gridSizesSet = true;
     }
+    if (level != -1) {
+      if (level < boards.length) {
+        if (boardSet == false) {
+          setBoard(boards[level]);
+          boardSet = true;
+        }
+      }
+    }
     if (boardSet == false) {
       board = createBoard(gridWidth, gridHeight);
       boardSet = true;
     }
+    // console.log(board);
+    checkForAnomolies(); // fix thisd
     drawBoard(board);
   }
   if (enableFeedback)

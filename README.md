@@ -4,11 +4,11 @@ This is a web clone of the game "Connect Me - Logic Puzzle" by Viktor Bohush.
 
 ## Todo
 
-+ Make the game playable
-+ make the puzzles solvable. (Falls into "make the game playable")
++ [FIXED] Make the game playable - FIXED
++ [FIXED] make the puzzles solvable. (Falls into "make the game playable") - FIXED
 + [FIXED] fix the checkBoardForSquare function. It always returns undefined - FIXED
-+ [FIXED] fix the dragging functionality. It likes to drop peices and pick up new ones when dragging over other peices. - FIXED
-
++ [FIXED] fix the dragging functionality. It likes to drop peices and pick up new ones when dragging over other pieces. - FIXED'
++ Add some UI elements. (buttons (maybe from a library), modals, toast if possible, etc.)
 
 ### Notes
 
@@ -34,3 +34,14 @@ if (isEditing) {
 }
 ```
 + if we are in "add square" mode, then we will add a square to the board when clicking, instead of editing. if a square already exists, then we should not add a square.
++ .
++ the modal will include two buttons.
++ both buttons will be the same size.
++ both buttons will have the option of being or hidden, but not both at the same time.
++ the buttons will be on the bottom of the modal.
++ the buttons will have the function "positiveButton" and "negativeButton".
++ the modal will return a result. if `POSITIVE`, then we can call the positive function. if `NEGATIVE`, then we can call the negative function.
++ the modal buttons will be of a separate class. this will allow for no event handling.
++ the modal will have a function that will be called when clicked. it will check to see if click was in the bounds of the modal buttons. this will return to the modal the result of the button.
++ the modal buttons will have a function that will have a function called inBounds. this will check to see if the mouse is in the bounds of the button. this will return a boolean.
++ depending on the button returning true, the modal will set the status of the button. This can return to an async function that will do something with the result. maybe.

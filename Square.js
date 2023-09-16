@@ -1,3 +1,5 @@
+// todo: read file from host. ex: [public_html]/boards/Level 1.blox
+
 /**
  * @Class Square
  * @description A square that can be rotated and moved around the board.
@@ -7,18 +9,30 @@
  */
 
 class Square {
- constructor(x, y, id = 1, lockRotation = false) {
-  this.x = x;
-  this.y = y;
-  this.id = id;
-  this.lockRotation = lockRotation; //lk; <-- cat stepped on the keyboard. I'm leaving it in because it's funny.
-  this.color = color(255, 0, 0);
-  // set the value on each side of the square with a random number between 0 and 4, including 0 and 4.
-  this.connectors = [floor(random(0, 5)), floor(random(0, 5)), floor(random(0, 5)), floor(random(0, 5))];
-  this.holding = false;
-  this.lastSuccessfulPosX = x;
-  this.lastSuccessfulPosY = y;
- }
+  constructor(x, y, id = 1, lockRotation = false) {
+    this.x = x;
+    this.y = y;
+    this.gridX = floor(x / gridCellSize);
+    this.gridY = floor(y / gridCellSize);
+    this.gridY;
+    this.id = id;
+    this.lockRotation = lockRotation; //lk; <-- cat stepped on the keyboard. I'm leaving it in because it's funny.
+    this.color = color(255, 0, 0);
+    // set the value on each side of the square with a random number between 0 and 4, including 0 and 4.
+    this.connectors = [floor(random(0, 5)), floor(random(0, 5)), floor(random(0, 5)), floor(random(0, 5))];
+    this.solvedSides = [false, false, false, false];
+    this.holding = false;
+    this.lastSuccessfulPosX = x;
+    this.lastSuccessfulPosY = y;
+  }
+
+  static side = {
+    TOP: 0,
+    RIGHT: 1,
+    BOTTOM: 2,
+    LEFT: 3
+  }
+
   /**
    * @public
    * @function
@@ -30,12 +44,15 @@ class Square {
     // draw the square with 5 pixel padding
     var padding = 5;
     var spacing = 5;
+    stroke(255);
+    strokeWeight(1);
+    // rectMode(CENTER);
     rect(this.x + padding, this.y + padding, gridCellSize - padding*2, gridCellSize - padding*2);
+    
     // draw a line sticking out of the square for each connector, with 5 pixel spacing between each line., 
     // the line should be 5 pixels long, and the color should be blue.
     // the lines should be vertical for connector[0] and connector[2], and horizontal for connector[1] and connector[3].
     // the lines should be drawn from the center of the square.
-    stroke(255);
     var strokeW = 2
     strokeWeight(strokeW);
 
@@ -145,6 +162,37 @@ class Square {
       // line(x + padding, y + (middle of cell) + (spacing * 1.5), x, y + (middle of cell) + (spacing * 1.5)
       line(this.x + padding, this.y + (gridCellSize / 2) + (spacing * 1.5), this.x, this.y + (gridCellSize / 2) + (spacing * 1.5)); // fourth connector
     }
+    if (doDebug) {
+      stroke(0, 100, 255);
+      // strokeWeight(1);
+      // draw a line at the side of solved sides, respecting padding
+      padding = 4
+      if (this.solvedSides[0] == true) {
+        line(this.x + padding, this.y + padding, this.x + gridCellSize - padding, this.y + padding);
+      }
+      if (this.solvedSides[1] == true) {
+        line(this.x + gridCellSize - padding, this.y + padding, this.x + gridCellSize - padding, this.y + gridCellSize - padding);
+      }
+      if (this.solvedSides[2] == true) {
+        line(this.x + padding, this.y + gridCellSize - padding, this.x + gridCellSize - padding, this.y + gridCellSize - padding);
+      }
+      if (this.solvedSides[3] == true) {
+        line(this.x + padding, this.y + padding, this.x + padding, this.y + gridCellSize - padding);
+      }
+      /* if (this.solvedSides[0] == true) {
+        line(this.x, this.y, this.x + gridCellSize, this.y);
+      }
+      if (this.solvedSides[1] == true) {
+        line(this.x + gridCellSize, this.y, this.x + gridCellSize, this.y + gridCellSize);
+      }
+      if (this.solvedSides[2] == true) {
+        line(this.x, this.y + gridCellSize, this.x + gridCellSize, this.y + gridCellSize);
+      }
+      if (this.solvedSides[3] == true) {
+        line(this.x, this.y, this.x, this.y + gridCellSize);
+      } */
+
+    }
   }
 
   /**
@@ -175,6 +223,8 @@ class Square {
   move(posX, posY) {
     this.x = posX - gridCellSize / 2;
     this.y = posY - gridCellSize / 2;
+    // this.gridX = floor(this.x / gridCellSize);
+    // this.gridY = floor(this.y / gridCellSize);
   }
 
   /**
@@ -238,42 +288,45 @@ class Square {
    * @name release
    * @param {number} x the x position of the mouse
    * @param {number} y the y position of the mouse
-   * @returns 
+   * @returns {{oldGridX: int, oldGridY: int, gridX: int, gridY: int, newSquare: undefined}} an object containing the gridX and gridY of the square, or undefined if the square is not being held.
    */
   release(x, y) {
     // snap position to grid
+    let oldGridX = this.gridX;
+    let oldGridY = this.gridY;
     let squareAtReleasePos = checkBoardForSquare(x, y);
-    if (squareAtReleasePos != undefined && squareAtReleasePos.id == this.id)
-      doDebug ? console.log("%cthe square at " + x + ", " + y + " is the same as the square being released", "color: green; background-color: cobalt") : undefined;
-    else
-      doDebug ? console.log("%c%b", "color: orange", checkBoardForSquare(x, y)) : undefined;
-
-    if (squareAtReleasePos == undefined) {
-      doDebug ? console.debug({status: "releasing square", Position: {x: this.x, y: this.y}, gridCellSize: gridCellSize}) : undefined;
-      this.x = floor((this.x + (gridCellSize / 2)) / gridCellSize) * gridCellSize;
-      this.y = floor((this.y + (gridCellSize / 2)) / gridCellSize) * gridCellSize;
-      doDebug ? console.log({status: "square released", Position: {x: this.x, y: this.y}, gridCellSize: gridCellSize}) : undefined;
-      this.holding = false;
-      this.lastSuccessfulPosX = this.x;
-      this.lastSuccessfulPosY = this.y;
-      // return undefined;
+    let emptySquare = false;
+    if (squareAtReleasePos.length != 0) {
+      for (let i = 0; i < squareAtReleasePos.length; i++) {
+        if (squareAtReleasePos[i].id == this.id) {
+          doDebug ? console.log("%cthe square at " + x + ", " + y + " is the same as the square being released", "color: green; background-color: cobalt") : undefined;
+          continue;
+        } else {
+          doDebug ? console.log("%c%b", "color: orange", checkBoardForSquare(x, y)) : undefined;
+          emptySquare = true;
+        }
+      }
     }
-    else if (squareAtReleasePos.id == this.id) {
-      doDebug ? console.debug({status: "releasing square", Position: {x: this.x, y: this.y}, gridCellSize: gridCellSize}) : undefined;
+    if (emptySquare == true) {
       this.x = floor((this.x + (gridCellSize / 2)) / gridCellSize) * gridCellSize;
       this.y = floor((this.y + (gridCellSize / 2)) / gridCellSize) * gridCellSize;
+      this.gridX = floor(this.x / gridCellSize);
+      this.gridY = floor(this.y / gridCellSize);
+
+      board[this.gridX][this.gridY] = this;
+      board[oldGridX][oldGridY] = undefined;
       doDebug ? console.log({status: "square released", Position: {x: this.x, y: this.y}, gridCellSize: gridCellSize}) : undefined;
       this.holding = false;
       this.lastSuccessfulPosX = this.x;
       this.lastSuccessfulPosY = this.y;
-      // return undefined;
-
+      return {oldGridX, oldGridY, gridX: this.gridX, gridY: this.gridY, newSquare: undefined};
     } else {
       this.x = this.lastSuccessfulPosX;
       this.y = this.lastSuccessfulPosY;
-      this.holding = false;
+      // this.gridX = floor(this.x / gridCellSize);
+      // this.gridY = floor(this.y / gridCellSize); // Remove after more successful testing
+      return {oldGridX, oldGridY, gridX: this.gridX, gridY: this.gridY, newSquare: undefined};
     }
-    return undefined;
   }
 
   /** 
@@ -346,7 +399,7 @@ class Square {
 
   static parseObj = function(obj) {
     let objKeys = Object.keys(obj);
-    console.log(objKeys);
+    doDebug ? console.log(objKeys) : undefined;
     if (objKeys.includes("x") && objKeys.includes("y") && objKeys.includes("id") && objKeys.includes("connectors")) {
       let square = new Square(obj.x, obj.y, obj.id);
       square.connectors = obj.connectors;
