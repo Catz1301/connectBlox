@@ -56,8 +56,8 @@ function createEmptyBoard(width, height) {
  * @param {Square[][]} board The board to draw
  */
 function drawBoard(board) {
-  for (var x = 0; x < board.length; x++) {
-    for (var y = 0; y < board[x].length; y++) {
+  for (let x = 0; x < board.length; ++x) {
+    for (let y = 0; y < board[x].length; ++y) {
       if (board[x][y] != undefined) {
         // if (holdingSquare == undefined) {
         //   board[x][y].drawSquare();
@@ -70,9 +70,11 @@ function drawBoard(board) {
         board[x][y].drawSquare(); // eventually only draw squares that are not being held, then draw the held square on top of the others.
         if (doDebug) {
           stroke(0);
-          strokeWeight(3);
-          fill(255, 0, 255);
-          circle(x * gridCellSize + (gridCellSize/2), y * gridCellSize + (gridCellSize/2), gridCellSize);
+          // strokeWeight(3);
+          fill(255);
+          textAlign(CENTER);
+          textSize(16);
+          text(board[x][y].id, board[x][y].x + gridCellSize / 2, board[x][y].y + 8 + gridCellSize / 2);
         }
       }
     }
@@ -95,7 +97,18 @@ function checkBoardForSquare(mx, my, squareId) {
    * @name square
    * @type {Square}
    */
-  let square = undefined;
+  let squares = [];
+  let gridX = floor(mx / gridCellSize);
+  let gridY = floor(my / gridCellSize);
+  if (board[gridX][gridY] != undefined) {
+    if (board[gridX][gridY].id == squareId) {
+      return undefined;
+    } else {
+      return board[gridX][gridY];
+    }
+  } else {
+    return undefined;
+  }
   for (var x = 0; x < board.length; x++) {
     for(var y = 0; y < board[x].length; y++) {
       if (board[x][y] == undefined) {
@@ -109,16 +122,16 @@ function checkBoardForSquare(mx, my, squareId) {
         if (board[x][y].check(mx, my) && board[x][y].id != squareId) {
           doDebug ? console.debug({status: "Square found, returning", squareAt}) : undefined;
           squareFound = true;
-          square = board[x][y];
-          return square;
+          squares[squares.length] = board[x][y];
+          return squares;
         }
         else
           continue;
       }
     };
   };
-  doDebug ? console.debug("%c%o", "color: white, background-color: green, font-size: 16px;", square) : undefined;
-  return square;
+  doDebug ? console.debug("%c%o", "color: white, background-color: green, font-size: 16px;", squares) : undefined;
+  return squares;
 }
 
 /**
@@ -220,91 +233,119 @@ function attemptSolve() {
       if (board[x][y] != null) {
         board[x][y].color = color(255, 255, 0);
         if (x == 0) {
-          board[x][y].solvedSides[Square.side.LEFT] = true;
+          board[x][y].solvedSides[board[x][y].side.LEFT] = true;
         }
         if (x == gridWidth - 1) {
-          board[x][y].solvedSides[Square.side.RIGHT] = true;
+          board[x][y].solvedSides[board[x][y].side.RIGHT] = true;
         }
         if (y == 0) {
-          board[x][y].solvedSides[Square.side.TOP] = true;
+          board[x][y].solvedSides[board[x][y].side.TOP] = true;
         }
         if (y == gridHeight - 1) {
-          board[x][y].solvedSides[Square.side.BOTTOM] = true;
+          board[x][y].solvedSides[board[x][y].side.BOTTOM] = true;
         }
         if (x != 0) {
           if (board[x][y] != undefined && board[x - 1][y] != undefined) {
-            doDebug ? console.debug({status: "ConnectorTest", "Square": board[x][y], x,y, "Square Left Connectors": board[x][y].connectors[Square.side.LEFT], "Left Square Right Connector": board[x - 1][y].connectors[Square.side.RIGHT]}) : undefined;
-            if (board[x][y].connectors[Square.side.LEFT] == board[x - 1][y].connectors[Square.side.RIGHT]) {
-              board[x][y].solvedSides[Square.side.LEFT] = true;
-              board[x - 1][y].solvedSides[Square.side.RIGHT] = true;
+            doDebug ? console.debug({status: "ConnectorTest", "Square": board[x][y], x,y, "Square Left Connectors": board[x][y].connectors[board[x][y].side.LEFT], "Left Square Right Connector": board[x - 1][y].connectors[board[x][y].side.RIGHT]}) : undefined;
+            if (board[x][y].connectors[board[x][y].side.LEFT] == board[x - 1][y].connectors[board[x][y].side.RIGHT]) {
+              board[x][y].solvedSides[board[x][y].side.LEFT] = true;
+              board[x - 1][y].solvedSides[board[x][y].side.RIGHT] = true;
             } else {
-              board[x][y].solvedSides[Square.side.LEFT] = false;
-              board[x - 1][y].solvedSides[Square.side.RIGHT] = false;
+              board[x][y].solvedSides[board[x][y].side.LEFT] = false;
+              board[x - 1][y].solvedSides[board[x][y].side.RIGHT] = false;
+            }
+          } else {
+            if (board[x][y] != undefined) {
+              board[x][y].solvedSides[board[x][y].side.LEFT] = false;
+            }
+            if (board[x - 1][y] != undefined) {
+              board[x - 1][y].solvedSides[board[x][y].side.RIGHT] = false;
             }
           }
         }
         if (x != gridWidth - 1) {
           if (board[x][y] != undefined && board[x + 1][y] != undefined) {
-            doDebug ? console.debug({status: "ConnectorTest", "Square": board[x][y], x,y, "Square Right Connectors": board[x][y].connectors[Square.side.RIGHT], "Right Square Left Connector": board[x + 1][y].connectors[Square.side.LEFT]}) : undefined;
-            if (board[x][y].connectors[Square.side.RIGHT] == board[x + 1][y].connectors[Square.side.LEFT]) {
-              board[x][y].solvedSides[Square.side.RIGHT] = true;
-              board[x + 1][y].solvedSides[Square.side.LEFT] = true;
+            doDebug ? console.debug({status: "ConnectorTest", "Square": board[x][y], x,y, "Square Right Connectors": board[x][y].connectors[board[x][y].side.RIGHT], "Right Square Left Connector": board[x + 1][y].connectors[board[x][y].side.LEFT]}) : undefined;
+            if (board[x][y].connectors[board[x][y].side.RIGHT] == board[x + 1][y].connectors[board[x][y].side.LEFT]) {
+              board[x][y].solvedSides[board[x][y].side.RIGHT] = true;
+              board[x + 1][y].solvedSides[board[x][y].side.LEFT] = true;
             } else {
-              board[x][y].solvedSides[Square.side.RIGHT] = false;
-              board[x + 1][y].solvedSides[Square.side.LEFT] = false;
+              board[x][y].solvedSides[board[x][y].side.RIGHT] = false;
+              board[x + 1][y].solvedSides[board[x][y].side.LEFT] = false;
+            }
+          } else {
+            if (board[x][y] != undefined) {
+              board[x][y].solvedSides[board[x][y].side.RIGHT] = false;
+            }
+            if (board[x + 1][y] != undefined) {
+              board[x + 1][y].solvedSides[board[x][y].side.LEFT] = false;
             }
           }
         }
         if (y != 0) {
           if (board[x][y] != undefined && board[x][y - 1] != undefined) {
-            doDebug ? console.debug({status: "ConnectorTest", "Square": board[x][y], x,y, "Square Top Connectors": board[x][y].connectors[Square.side.TOP], "Top Square Bottom Connector": board[x][y - 1].connectors[Square.side.BOTTOM]}) : undefined;
-            if (board[x][y].connectors[Square.side.TOP] == board[x][y - 1].connectors[Square.side.BOTTOM]) {
-              board[x][y].solvedSides[Square.side.TOP] = true;
-              board[x][y - 1].solvedSides[Square.side.BOTTOM] = true;
+            doDebug ? console.debug({status: "ConnectorTest", "Square": board[x][y], x,y, "Square Top Connectors": board[x][y].connectors[board[x][y].side.TOP], "Top Square Bottom Connector": board[x][y - 1].connectors[board[x][y].side.BOTTOM]}) : undefined;
+            if (board[x][y].connectors[board[x][y].side.TOP] == board[x][y - 1].connectors[board[x][y].side.BOTTOM]) {
+              board[x][y].solvedSides[board[x][y].side.TOP] = true;
+              board[x][y - 1].solvedSides[board[x][y].side.BOTTOM] = true;
             } else {
-              board[x][y].solvedSides[Square.side.TOP] = false;
-              board[x][y - 1].solvedSides[Square.side.BOTTOM] = false;
+              board[x][y].solvedSides[board[x][y].side.TOP] = false;
+              board[x][y - 1].solvedSides[board[x][y].side.BOTTOM] = false;
+            }
+          } else {
+            if (board[x][y] != undefined) {
+              board[x][y].solvedSides[board[x][y].side.TOP] = false;
+            }
+            if (board[x][y - 1] != undefined) {
+              board[x][y - 1].solvedSides[board[x][y].side.BOTTOM] = false;
             }
           }
         }
         if (y != gridHeight - 1) {
           if (board[x][y] != undefined && board[x][y + 1] != undefined) {
-            doDebug ? console.debug({status: "ConnectorTest", "Square": board[x][y], x,y, "Square Bottom Connectors": board[x][y].connectors[Square.side.BOTTOM], "Bottom Square Top Connector": board[x][y + 1].connectors[Square.side.TOP]}) : undefined;
-            if (board[x][y].connectors[Square.side.BOTTOM] == board[x][y + 1].connectors[Square.side.TOP]) {
-              board[x][y].solvedSides[Square.side.BOTTOM] = true;
-              board[x][y + 1].solvedSides[Square.side.TOP] = true;
+            doDebug ? console.debug({status: "ConnectorTest", "Square": board[x][y], x,y, "Square Bottom Connectors": board[x][y].connectors[board[x][y].side.BOTTOM], "Bottom Square Top Connector": board[x][y + 1].connectors[board[x][y].side.TOP]}) : undefined;
+            if (board[x][y].connectors[board[x][y].side.BOTTOM] == board[x][y + 1].connectors[board[x][y].side.TOP]) {
+              board[x][y].solvedSides[board[x][y].side.BOTTOM] = true;
+              board[x][y + 1].solvedSides[board[x][y].side.TOP] = true;
             } else {
-              board[x][y].solvedSides[Square.side.BOTTOM] = false;
-              board[x][y + 1].solvedSides[Square.side.TOP] = false;
+              board[x][y].solvedSides[board[x][y].side.BOTTOM] = false;
+              board[x][y + 1].solvedSides[board[x][y].side.TOP] = false;
+            }
+          } else {
+            if (board[x][y] != undefined) {
+              board[x][y].solvedSides[board[x][y].side.BOTTOM] = false;
+            }
+            if (board[x][y + 1] != undefined) {
+              board[x][y + 1].solvedSides[board[x][y].side.TOP] = false;
             }
           }
         }
       }
       if (board[x][y] != undefined) {
         if (board[x][y].connectors[0] == 0) {
-          board[x][y].solvedSides[Square.side.TOP] = true;
+          board[x][y].solvedSides[board[x][y].side.TOP] = true;
         }
         if (board[x][y].connectors[1] == 0) {
-          board[x][y].solvedSides[Square.side.RIGHT] = true;
+          board[x][y].solvedSides[board[x][y].side.RIGHT] = true;
         }
         if (board[x][y].connectors[2] == 0) {
-          board[x][y].solvedSides[Square.side.BOTTOM] = true;
+          board[x][y].solvedSides[board[x][y].side.BOTTOM] = true;
         }
         if (board[x][y].connectors[3] == 0) {
-          board[x][y].solvedSides[Square.side.LEFT] = true;
+          board[x][y].solvedSides[board[x][y].side.LEFT] = true;
         }
       }
       // todo: Check out Montclair, CA. It looks beautiful.
       let squareSolved = false;
       if (board[x][y] != undefined) {
-        squareSolved = (board[x][y].solvedSides[Square.side.LEFT] && board[x][y].solvedSides[Square.side.RIGHT] && board[x][y].solvedSides[Square.side.TOP] && board[x][y].solvedSides[Square.side.BOTTOM]);
-        console.log("Square at " + x + ", " + y + " is solved: " + squareSolved)
+        squareSolved = (board[x][y].solvedSides[board[x][y].side.LEFT] && board[x][y].solvedSides[board[x][y].side.RIGHT] && board[x][y].solvedSides[board[x][y].side.TOP] && board[x][y].solvedSides[board[x][y].side.BOTTOM]);
+        doDebug ? console.log("Square at " + x + ", " + y + " is solved: " + squareSolved) : undefined;
       }
       if (squareSolved == false && board[x][y] != undefined) {
         allSquaresSolved = false;
       }
       if (board[x][y] != undefined) {
-        if (board[x][y].solvedSides[Square.side.LEFT] == true && board[x][y].solvedSides[Square.side.RIGHT] == true && board[x][y].solvedSides[Square.side.TOP] == true && board[x][y].solvedSides[Square.side.BOTTOM] == true) {
+        if (board[x][y].solvedSides[board[x][y].side.LEFT] == true && board[x][y].solvedSides[board[x][y].side.RIGHT] == true && board[x][y].solvedSides[board[x][y].side.TOP] == true && board[x][y].solvedSides[board[x][y].side.BOTTOM] == true) {
           board[x][y].color = color(255, 255, 0);
         }
       }
@@ -322,6 +363,7 @@ function attemptSolve() {
           level++;
           boardSet = false;
           isFullScreen = false; 
+          storeItem("level", level);
         }
       }, 1000);
     };

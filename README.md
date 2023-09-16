@@ -45,3 +45,4 @@ if (isEditing) {
 + the modal will have a function that will be called when clicked. it will check to see if click was in the bounds of the modal buttons. this will return to the modal the result of the button.
 + the modal buttons will have a function that will have a function called inBounds. this will check to see if the mouse is in the bounds of the button. this will return a boolean.
 + depending on the button returning true, the modal will set the status of the button. This can return to an async function that will do something with the result. maybe.
++ there should also be a button column at the right side of the screen. It will house the buttons for the editor. This will house the buttons for feedback and editing (share, save). It will allow us to add buttons easily in the future.
