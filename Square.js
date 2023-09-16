@@ -290,23 +290,30 @@ class Square {
    * @param {number} y the y position of the mouse
    * @returns {{oldGridX: int, oldGridY: int, gridX: int, gridY: int, newSquare: undefined}} an object containing the gridX and gridY of the square, or undefined if the square is not being held.
    */
-  release(x, y) {
+  release(x, y) { // Take a bullet to the head before fucking with this. it works. leave it.
     // snap position to grid
     let oldGridX = this.gridX;
     let oldGridY = this.gridY;
-    let squareAtReleasePos = checkBoardForSquare(x, y);
+    let squareAtReleasePos = checkBoardForSquare(mouseX, mouseY);
     let emptySquare = false;
-    if (squareAtReleasePos.length != 0) {
+    if (squareAtReleasePos == undefined) {
+      emptySquare = true;
+    }
+    /* if (squareAtReleasePos.length != 0) {
       for (let i = 0; i < squareAtReleasePos.length; i++) {
         if (squareAtReleasePos[i].id == this.id) {
+          if (squareAtReleasePos.length == 1) // must be this square only, therefore is an empty square we're over
+            emptySquare = true;
           doDebug ? console.log("%cthe square at " + x + ", " + y + " is the same as the square being released", "color: green; background-color: cobalt") : undefined;
           continue;
         } else {
           doDebug ? console.log("%c%b", "color: orange", checkBoardForSquare(x, y)) : undefined;
-          emptySquare = true;
+          // emptySquare = true;
         }
       }
-    }
+    } else {
+      emptySquare = true;
+    } */
     if (emptySquare == true) {
       this.x = floor((this.x + (gridCellSize / 2)) / gridCellSize) * gridCellSize;
       this.y = floor((this.y + (gridCellSize / 2)) / gridCellSize) * gridCellSize;
