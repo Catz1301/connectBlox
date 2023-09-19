@@ -29,6 +29,12 @@ var chanceOfSquare = 0.3;
 var showingContextMenu = false; // todo: implement context menu
 var enableFeedback = true;
 
+// BUTTONS
+var feedbackButton = undefined;
+// TODO: Implement the following buttons. Create in editor, and figure out spacing.
+
+var saveBoardButton, shareBoardButton, clearBoardButton, rotationLockButton, toggleSquareButton = undefined;
+
 /**
  * @var
  * @name isEditing
@@ -57,6 +63,8 @@ var instructions = [
   "d: Toggle debug mode"
 ]
 
+var activeModal = undefined;
+
 
 function setup() {
   createCanvas(displayWidth, displayHeight);
@@ -65,6 +73,25 @@ function setup() {
   
   // canvas.requestFullscreen();
   // scribble = new Scribble();
+  if (enableFeedback) {
+    feedbackButton = new Clickable(width - 155, height - 80);
+    feedbackButton.text = "Feedback";
+    feedbackButton.resize(150, 75);
+    feedbackButton.cornerRadius = 0;
+    feedbackButton.textSize = 24;
+    feedbackButton.textScaled = false;
+    feedbackButton.textColor = color(250);
+    feedbackButton.onPress = function () {
+      window.open("https://forms.gle/1hX7sZd3F6h4xX2x8", "_blank");
+    }
+    feedbackButton.onOutside = function () {
+      this.color = color(38, 114, 188);
+    }
+    feedbackButton.onHover = function () {
+      this.color = color(8, 84, 158);
+    }
+  }
+  setupEditor();
 }
 
 function draw() {
@@ -103,7 +130,10 @@ function draw() {
         setBoard(boards[level]);
         boardSet = true;
       } else {
-        alert("You have completed all the levels. Thank you for playing! Feel free to load in a blox file and play some custom levels. Or make your own levels and share them with your friends!");
+        let completedModal = new Modal("You have completed all the levels", "Thank you for playing! Feel free to load in a blox file and play some custom levels. Or make your own levels and share them with your friends!", false);
+        completedModal.show().then((result) => {
+          completedModal = undefined; // delete the modal.
+        });
       }
     }
     
@@ -119,11 +149,27 @@ function draw() {
       // draw the mouse x and y coordinates in the top left corner.
       fill(255);
       textSize(16);
-      text("Mouse X: " + mouseX + "\nMouse Y: " + mouseY, 10, 20);
+      let mouseGridX = floor(mouseX / gridCellSize);
+      let mouseGridY = floor(mouseY / gridCellSize);
+      text("Mouse X: " + mouseX + "\nMouse Y: " + mouseY + "\nFPS: " + Math.round(getFrameRate()) + "\nGrid X: " + mouseGridX + "\nGrid Y: " + mouseGridY, 10, 20);
+    }
+    if (isEditing) {
+      drawEditorUI();
     }
     if (enableFeedback)
-      drawFeedbackButton();
+      feedbackButton.draw();
+      // drawFeedbackButton();
   }
+  if (activeModal != undefined) {
+    activeModal.draw();
+  }
+}
+
+function dim() {
+  // dim the screen.
+  fill(0, 0, 0, 150);
+  noStroke();
+  rect(0, 0, width, height);
 }
 
 // check the board to see if there is a square at the mouse position. If there is, return it. If not, return undefined.
@@ -167,6 +213,7 @@ function displayStartScreen() {
   fill(0);
   textSize(32);
   fill(255);
+  textAlign(LEFT, TOP);
   // show the instructions.
   for (var i = 0; i < instructions.length; i++) {
     text(instructions[i], 10, 32 + (i * 40));

@@ -69,12 +69,14 @@ function drawBoard(board) {
         // }
         board[x][y].drawSquare(); // eventually only draw squares that are not being held, then draw the held square on top of the others.
         if (doDebug) {
+          push();
           stroke(0);
           // strokeWeight(3);
           fill(255);
           textAlign(CENTER);
           textSize(16);
           text(board[x][y].id, board[x][y].x + gridCellSize / 2, board[x][y].y + 8 + gridCellSize / 2);
+          pop();
         }
       }
     }
@@ -358,13 +360,18 @@ function attemptSolve() {
     solved = true;
     const puzzleSolved = async () => {
       setTimeout(() => {
-        let advanceLevel = confirm("You solved the puzzle! Move on to level " + (level + 1) + "?");
-        if (advanceLevel) {
-          level++;
-          boardSet = false;
-          isFullScreen = false; 
-          storeItem("level", level);
-        }
+        let advanceLevelModal = new Modal("Puzzle Solved!", "You solved the puzzle! Move on to level " + (level + 1) + "?");
+        let advanceLevel = false;
+        advanceLevelModal.show().then((result) => {
+          if (result == Modal.ModalResult.POSITIVE) {
+            advanceLevel = true;
+            level++;
+            boardSet = false;
+            isFullScreen = false; 
+            storeItem("level", level);
+            solved = false;
+          }
+        });
       }, 1000);
     };
     puzzleSolved();

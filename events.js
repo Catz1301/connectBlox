@@ -25,7 +25,9 @@ function mouseReleased() {
       doDebug ? console.debug({"Code Location": "mouseReleased", status: "resetting holdingSquare holding status", holdingSquare}) : undefined;
       // holdingSquare.holding = false;
       doDebug ? console.debug({"Code Location": "mouseReleased", status: "holdingSquare holding status reset", holdingSquare}) : undefined;
+      // if (isMouseOverButton() == false) {
       holdingSquareRelease = holdingSquare.release(mouseX, mouseY);
+      // }
       doDebug ? console.log(holdingSquareRelease) : undefined;
       // board[holdingSquareRelease.gridX][holdingSquareRelease.gridY] = board[holdingSquareRelease.oldGridX][holdingSquareRelease.oldGridY];
       // board[holdingSquareRelease.oldGridX][holdingSquareRelease.oldGridY] = undefined;
@@ -47,14 +49,20 @@ function mouseReleased() {
       }
     }
     if (selectedSquare != undefined && holdingSquare != undefined) {
-      // holdingSquare = holdingSquare.release();
-      selectedSquare.color = color(255, 0, 0);
-      selectedSquareRelease = selectedSquare.release(mouseX, mouseY);
-      board[selectedSquareRelease.gridX][selectedSquareRelease.gridY] = selectedSquare;
-      board[selectedSquareRelease.oldGridX][selectedSquareRelease.oldGridY] = undefined;
-      selectedSquare = selectedSquareRelease.newSquare;
-      
-      holdingSquare = undefined;
+      if (saveBoardBtnHover == false && shareBoardBtnHover == false && clearBoardBtnHover == false && rotationLockBtnHover == false && toggleSquareBtnHover == false) {
+        // holdingSquare = holdingSquare.release();
+        selectedSquare.color = color(255, 0, 0);
+        selectedSquareRelease = selectedSquare.release(mouseX, mouseY);
+        board[selectedSquareRelease.gridX][selectedSquareRelease.gridY] = selectedSquare;
+        board[selectedSquareRelease.oldGridX][selectedSquareRelease.oldGridY] = undefined;
+        selectedSquare = selectedSquareRelease.newSquare;
+        if (holdSquareForButton != undefined) {
+          selectedSquare = holdSquareForButton;
+          holdSquareForButton = undefined;
+        } else {
+          holdingSquare = undefined;
+        }
+      }
     }
   }
 
@@ -88,15 +96,17 @@ function mousePressed() {
       let foundSquare = false;
       board.forEach(function(e, index){
         e.forEach(function(d,index2){
-          if (board[index][index2] != undefined) {
-            if (selectedSquare == undefined && board[index][index2].select() && foundSquare == false) {
-              selectedSquare = board[index][index2];
-              foundSquare = true;
+          // if (isMouseOverButton() == false) {
+            if (board[index][index2] != undefined) {
+              if (selectedSquare == undefined && board[index][index2].select() && foundSquare == false) {
+                selectedSquare = board[index][index2];
+                foundSquare = true;
+              }
+              if (selectedSquare != undefined && board[index][index2].select() && foundSquare == false) {
+                selectedSquare = undefined;
+              }
             }
-            if (selectedSquare != undefined && board[index][index2].select() && foundSquare == false) {
-              selectedSquare = undefined;
-            }
-          }
+          // }
         });
       });
     }
@@ -135,13 +145,10 @@ function keyPressed(event) {
   }
   if (keyCode == ESCAPE) {
 
-    if (confirm("Are you sure you want to exit full screen?")) {
-      fullscreen(false);
-      isFullScreen = false;
-      return;
-    } else {
-      return false;
-    }
+    // // if (confirm("Are you sure you want to exit full screen?")) {
+    //   fullscreen(false);
+    //   isFullScreen = false;
+    return;
   }
   if (keyCode == DELETE) {
     resetBoard();
@@ -253,7 +260,19 @@ function keyTyped() {
     shuffleBoard();
   }
   if (key === '`') {
-    let confirmReset = confirm("Are you sure you want to reset all your progress? This will put you at level 0.");
+    var confirmReset = false;
+    let confirmModal = new Modal("Confirm Reset", "Are you sure you want to reset all your progress? This will put you at level 0.");
+    confirmModal.show().then((result) => {
+      if (result == Modal.ModalResult.POSITIVE) {
+        confirmReset = true;
+        level = -1;
+        clearBoard();
+        boardSet = false;
+        solved = false;
+        squareId = 0;
+        storeItem("level", 0);
+      }
+    });
     if (confirmReset) {
       level = -1;
       clearBoard();
@@ -263,6 +282,19 @@ function keyTyped() {
       storeItem("level", 0);
     }
   }
+  if (key === 'm' || key === 'M' && doDebug == true) {
+    let modal = new Modal("Test Modal", "This is a test modal, triggered by the 'm' key.");
+    modal.show().then((result) => {
+      if (result == Modal.ModalResult.POSITIVE) {
+        console.log("Positive result");
+        modal = undefined; // memory management
+      } else if (result == Modal.ModalResult.NEGATIVE) {
+        console.log("Negative result");
+        modal = undefined; // memory management
+      }
+    });
+  }
+
 }
 
 /**
@@ -272,4 +304,8 @@ function loadFile(file) {
   if (fileInput != undefined) {
     fileInput.remove();
   }
+}
+
+function isMouseOverButton() {
+  // if ()
 }
